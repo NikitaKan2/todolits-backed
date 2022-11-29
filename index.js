@@ -1,12 +1,18 @@
 import express from 'express';
-import router from './router.js';
+import getRouter from './routes/tasks.get.js';
+import postRouter from './routes/task.post.js';
+import patchRouter from './routes/task.patch.js';
+import deleteRouter from './routes/task.delete.js';
 
 const PORT = 4001;
 
 const app = express();
 
 app.use(express.json());
-app.use('/', router);
+app.use('/tasks', getRouter);
+app.use('/task', postRouter);
+app.use('/task', patchRouter);
+app.use('/task', deleteRouter);
 
 const startApp = () => {
   try {
