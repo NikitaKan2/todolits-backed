@@ -2,7 +2,7 @@
     "Customer": {
       "dbConfig": {
         "host": "localhost",
-        "port": 4001,
+        "port": 4002,
         "dbName": "customers"
       },
       "credit": {

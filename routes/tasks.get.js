@@ -10,7 +10,7 @@ router.get('/:userId', async (req, res) => {
       filterBy, order, pp, page,
     } = req.query;
 
-    if (page < 1 || pp > 20) {
+    if (page < 1 || pp > 20 || !page || !pp) {
       return res.status(422).json({ message: 'Invalid fields in request' });
     }
 
