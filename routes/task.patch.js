@@ -14,8 +14,8 @@ router.patch('/:userId/:id', async (req, res) => {
     }
 
     const updatedTask = {
-      name: body.name,
-      done: body.done,
+      name: body.name ?? dataFromParse.tasks[index].name,
+      done: body.done ?? dataFromParse.tasks[index].done,
       uuid: dataFromParse.tasks[index].uuid,
       createdAt: dataFromParse.tasks[index].createdAt,
       updatedAt: new Date().toISOString(),
