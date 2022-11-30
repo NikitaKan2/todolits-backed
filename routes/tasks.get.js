@@ -10,6 +10,10 @@ router.get('/:userId', async (req, res) => {
       filterBy, order, pp, page,
     } = req.query;
 
+    if (page < 1 || pp > 20) {
+      return res.status(422).json({ message: 'Invalid fields in request' });
+    }
+
     switch (order) {
       case 'asc':
         countAndTasks.tasks.sort((a, b) => a.createdAt.localeCompare(b.createdAt));

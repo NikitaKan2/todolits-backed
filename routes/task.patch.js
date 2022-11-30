@@ -13,7 +13,15 @@ router.patch('/:userId/:id', async (req, res) => {
       return res.status(422).json({ message: 'Invalid fields in request' });
     }
 
-    dataFromParse.tasks[index] = body;
+    const updatedTask = {
+      name: body.name ?? dataFromParse.tasks[index].name,
+      done: body.done ?? dataFromParse.tasks[index].done,
+      uuid: dataFromParse.tasks[index].uuid,
+      createdAt: dataFromParse.tasks[index].createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+
+    dataFromParse.tasks[index] = updatedTask;
 
     await writeFile('./__fixtures__/dataForGet.json', dataFromParse);
     return res.status(200).json(dataFromParse.tasks[index]);
