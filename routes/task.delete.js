@@ -1,23 +1,19 @@
 import { Router } from 'express';
-import { getFileData, writeFile } from '../utils/file-system.js';
+import db from '../db.js';
 
 const router = new Router();
 
 router.delete('/:userId/:id', async (req, res) => {
   try {
-    const dataFromParse = await getFileData('./__fixtures__/dataForGet.json');
-    const taskToDelte = dataFromParse.tasks.filter((task) => task.uuid === req.params.id);
-    if (!taskToDelte.length) {
+    const taskToDelte = await db.query('DELETE FROM posts where id = $1', [req.params.id]);
+
+    if (!taskToDelte.rowCount) {
       return res.status(404).json({ message: 'Task not found' });
     }
 
-    const newTasks = dataFromParse.tasks.filter((task) => task.uuid !== req.params.id);
-    dataFromParse.tasks = newTasks;
-    dataFromParse.count = newTasks.length;
-    await writeFile('./__fixtures__/dataForGet.json', dataFromParse);
     return res.status(200).json({ message: 'Task deleted' });
   } catch (e) {
-    return res.status(400).json({ message: 'Task not created' });
+    return res.status(400).json({ message: 'Task not created', error: e.message });
   }
 });
 

@@ -1,47 +1,50 @@
 import { Router } from 'express';
+import { query, validationResult } from 'express-validator';
 import db from '../db.js';
 
 const router = new Router();
 
-router.get('/:userId', async (req, res) => {
-    const countAndTasks = await db.query('SELECT * FROM tasks');
-    return res.json(countAndTasks[0]);
-    // const {
-    //   filterBy, order, pp, page,
-    // } = req.query;
+router.get(
+  '/:userId',
+  query('pp').isInt({ min: 5, max: 20 }),
+  async (req, res) => {
+    try {
+      const countAndTasks = await db.query('SELECT * FROM posts');
+      const {
+        filterBy, order, pp, page,
+      } = req.query;
 
-    // switch (order) {
-    //   case 'asc':
-    //     countAndTasks.tasks.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-    //     break;
-    //   case 'desc':
-    //     countAndTasks.tasks.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    //     break;
-    //   default:
-    //     break;
-    // }
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: errors.array() });
+      }
 
-    // const lastIndex = page * pp;
-    // const firstIndex = lastIndex - pp;
+      switch (order) {
+        case 'asc':
+          countAndTasks.rows.sort((a, b) => a.createdat - b.createdat);
+          break;
+        case 'desc':
+          countAndTasks.rows.sort((a, b) => b.createdat - a.createdat);
+          break;
+        default:
+          break;
+      }
 
-    // if (filterBy === 'done') {
-    //   const newTasks = countAndTasks.tasks.filter((task) => task.done);
-    //   return res.status(200).json({
-    //     count: newTasks.length,
-    //     tasks: newTasks.slice(firstIndex, lastIndex),
-    //   });
-    // }
-    // if (filterBy === 'undone') {
-    //   const newTasks = countAndTasks.tasks.filter((task) => !task.done);
-    //   return res.status(200).json({
-    //     count: newTasks.length,
-    //     tasks: newTasks.slice(firstIndex, lastIndex),
-    //   });
-    // }
-    // return res.status(200).json({
-    //   count: countAndTasks.tasks.length,
-    //   tasks: countAndTasks.tasks.slice(firstIndex, lastIndex),
-    // });
-});
+      const lastIndex = page * pp;
+      const firstIndex = lastIndex - pp;
+
+      const filtered = !filterBy
+        ? countAndTasks
+        : await db.query('SELECT * FROM posts where done = $1', [filterBy === 'done']);
+
+      return res.json({
+        count: filtered.rowCount,
+        tasks: filtered.rows.slice(firstIndex, lastIndex),
+      });
+    } catch (e) {
+      return res.status(400).json({ message: 'Tasks not created', error: e.message });
+    }
+  },
+);
 
 export default router;

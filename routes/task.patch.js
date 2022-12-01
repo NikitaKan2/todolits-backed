@@ -1,33 +1,59 @@
 import { Router } from 'express';
-import { getFileData, writeFile } from '../utils/file-system.js';
+import { body, query, validationResult } from 'express-validator';
+import db from '../db.js';
 
 const router = new Router();
 
-router.patch('/:userId/:id', async (req, res) => {
-  try {
-    const dataFromParse = await getFileData('./__fixtures__/dataForGet.json');
-    const { body } = req;
-    const index = dataFromParse.tasks.findIndex((task) => task.uuid === body.uuid);
-
-    if (index === -1) {
-      return res.status(422).json({ message: 'Invalid fields in request' });
+router.patch(
+  '/:userId/:id',
+  query('id').custom(async (value) => {
+    console.log(value)
+    const post = await db.query('SELECT * FROM posts where id = $1', [value]);
+    if (!post.rows.length) {
+      throw new Error('Invalid fields in request');
     }
+  }),
+  body('name').custom(
+    async (value) => {
+      const tasks = await db.query('SELECT * FROM posts where name = $1', [value]);
+      if (tasks.rowCount) {
+        throw new Error('Task with same name exist');
+      }
+    },
+  ),
+  async (req, res) => {
+    try {
+      const post = await db.query('SELECT * FROM posts where id = $1', [req.params.id]);
 
-    const updatedTask = {
-      name: body.name ?? dataFromParse.tasks[index].name,
-      done: body.done ?? dataFromParse.tasks[index].done,
-      uuid: dataFromParse.tasks[index].uuid,
-      createdAt: dataFromParse.tasks[index].createdAt,
-      updatedAt: new Date().toISOString(),
-    };
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: errors.array() });
+      }
 
-    dataFromParse.tasks[index] = updatedTask;
+      const updatedTask = {
+        name: req.body.name ?? post.rows[0].name,
+        done: req.body.done ?? post.rows[0].done,
+        id: post.rows[0].id,
+        createdAt: post.rows[0].createdat,
+        updatedAt: new Date().toJSON(),
+      };
 
-    await writeFile('./__fixtures__/dataForGet.json', dataFromParse);
-    return res.status(200).json(dataFromParse.tasks[index]);
-  } catch (e) {
-    return res.status(400).json({ message: 'Task not created' });
-  }
-});
+      const updatedPost = await db.query(
+        'UPDATE posts set name = $1, done = $2, createdAt = $3, updatedAt = $4 where id = $5 RETURNING *',
+        [
+          updatedTask.name,
+          updatedTask.done,
+          updatedTask.createdAt,
+          updatedTask.updatedAt,
+          req.params.id,
+        ],
+      );
+
+      return res.status(200).json(updatedPost.rows[0]);
+    } catch (e) {
+      return res.status(400).json({ message: 'Task not created' });
+    }
+  },
+);
 
 export default router;

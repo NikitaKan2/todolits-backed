@@ -1,42 +1,43 @@
 import { Router } from 'express';
-import { v4 as uuidv4 } from 'uuid';
 import { body, validationResult } from 'express-validator';
-import { getFileData, writeFile } from '../utils/file-system.js';
+import db from '../db.js';
 
 const router = new Router();
 
 router.post(
   '/:userId',
-  body('name').isLength({ min: 3 }),
+  body('name')
+    .isLength({ min: 3 })
+    .isEmpty()
+    .withMessage('Message must be at least 3 character long "name" in body')
+    .custom(async (value) => {
+      const tasks = await db.query('SELECT * FROM posts where name = $1', [value]);
+      if (tasks.rowCount) {
+        throw new Error('Task with same name exist');
+      }
+    }),
   async (req, res) => {
     try {
-      const dataTasks = await getFileData('./__fixtures__/dataForGet.json');
-
-      const sameName = dataTasks.tasks.filter((task) => task.name.trim() === req.body.name.trim());
-      if (sameName.length) {
-        return res.status(401).json({ message: 'Task with the same name exist' });
-      }
-
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ message: 'Message must be at least 3 character long "name" in body:' });
+        return res.status(400).json({ message: errors.array() });
       }
 
       const normalizeTask = {
         name: req.body.name.trim(),
         done: false,
-        uuid: uuidv4(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toJSON(),
+        updatedAt: new Date().toJSON(),
       };
 
-      dataTasks.count = dataTasks.tasks.length;
-      dataTasks.tasks.push(normalizeTask);
+      const newTask = await db.query(
+        'INSERT INTO posts (name, done, createdAt, updatedAt) values ($1, $2, $3, $4) RETURNING *',
+        [normalizeTask.name, normalizeTask.done, normalizeTask.createdAt, normalizeTask.updatedAt],
+      );
 
-      await writeFile('./__fixtures__/dataForGet.json', dataTasks);
-      return res.status(200).json(normalizeTask);
+      return res.status(200).json(newTask.rows[0]);
     } catch (e) {
-      return res.status(422).json({ message: e.message });
+      return res.status(400).json({ message: 'Task not created', error: e.message });
     }
   },
 );
