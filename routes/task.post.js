@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
-import db from '../db.js';
+import { v4 as uuidv4 } from 'uuid';
+import Task from '../db/index.js';
 
 const router = new Router();
 
@@ -8,11 +9,13 @@ router.post(
   '/:userId',
   body('name')
     .isLength({ min: 3 })
+    .not()
     .isEmpty()
-    .withMessage('Message must be at least 3 character long "name" in body')
+    .withMessage('Message must be at least 3 character long "name" in body'),
+  body('name')
     .custom(async (value) => {
-      const tasks = await db.query('SELECT * FROM posts where name = $1', [value]);
-      if (tasks.rowCount) {
+      const tasks = await Task.findAll({ where: { name: value } });
+      if (tasks.length) {
         throw new Error('Task with same name exist');
       }
     }),
@@ -23,19 +26,13 @@ router.post(
         return res.status(400).json({ message: errors.array() });
       }
 
-      const normalizeTask = {
+      const normalizeTask = await Task.create({
         name: req.body.name.trim(),
+        id: uuidv4(),
         done: false,
-        createdAt: new Date().toJSON(),
-        updatedAt: new Date().toJSON(),
-      };
+      });
 
-      const newTask = await db.query(
-        'INSERT INTO posts (name, done, createdAt, updatedAt) values ($1, $2, $3, $4) RETURNING *',
-        [normalizeTask.name, normalizeTask.done, normalizeTask.createdAt, normalizeTask.updatedAt],
-      );
-
-      return res.status(200).json(newTask.rows[0]);
+      return res.status(200).json(normalizeTask);
     } catch (e) {
       return res.status(400).json({ message: 'Task not created', error: e.message });
     }

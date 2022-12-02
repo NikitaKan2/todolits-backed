@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import db from '../db.js';
+import Task from '../db/index.js';
 
 const router = new Router();
 
@@ -7,9 +7,9 @@ router.delete(
   '/:userId/:id',
   async (req, res) => {
     try {
-      const taskToDelte = await db.query('DELETE FROM posts where id = $1', [req.params.id]);
+      const taskToDelte = await Task.destroy({ where: { id: req.params.id }, returning: true });
 
-      if (!taskToDelte.rowCount) {
+      if (!taskToDelte) {
         return res.status(404).json({ message: 'Task not found' });
       }
 

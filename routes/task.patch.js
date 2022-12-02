@@ -1,55 +1,56 @@
 import { Router } from 'express';
 import { body, param, validationResult } from 'express-validator';
-import db from '../db.js';
+import Task from '../db/index.js';
 
 const router = new Router();
 
 router.patch(
   '/:userId/:id',
   param('id').custom(async (value) => {
-    console.log(value);
-    const post = await db.query('SELECT * FROM posts where id = $1', [value]);
-    if (!post.rows.length) {
-      throw new Error('Invalid fields in request');
+    const post = await Task.findAll({ where: { id: value } });
+    if (!post.length) {
+      throw new Error(`Task with id: ${value} not exist`);
     }
   }),
   body('name').custom(
     async (value) => {
-      const tasks = await db.query('SELECT * FROM posts where name = $1', [value]);
-      if (tasks.rowCount) {
+      const tasks = await Task.findAll({ where: { name: value } });
+      if (tasks.length) {
         throw new Error('Task with same name exist');
       }
     },
   ),
+  body('name')
+    .isLength({ min: 3 })
+    .withMessage('Message must be at least 3 character long "name" in body')
+    .not()
+    .isEmpty(),
   async (req, res) => {
     try {
-      const post = await db.query('SELECT * FROM posts where id = $1', [req.params.id]);
-
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ message: errors.array() });
       }
 
-      const updatedTask = {
-        name: req.body.name ?? post.rows[0].name,
-        done: req.body.done ?? post.rows[0].done,
-        id: post.rows[0].id,
-        createdAt: post.rows[0].createdat,
-        updatedAt: new Date().toJSON(),
-      };
+      const taskToUpdate = await Task.findOne({ where: { id: req.params.id } });
 
-      const updatedPost = await db.query(
-        'UPDATE posts set name = $1, done = $2, createdAt = $3, updatedAt = $4 where id = $5 RETURNING *',
-        [
-          updatedTask.name,
-          updatedTask.done,
-          updatedTask.createdAt,
-          updatedTask.updatedAt,
-          req.params.id,
-        ],
-      );
+      const newName = req.body.name ?? taskToUpdate.name;
+      const newDone = 'done' in req.body && typeof req.body.done === 'boolean'
+        ? req.body.done
+        : taskToUpdate.done;
 
-      return res.status(200).json(updatedPost.rows[0]);
+      const newTask = await Task.update({
+        name: newName,
+        done: newDone,
+      }, {
+        where: {
+          id: req.params.id,
+        },
+        returning: true,
+        plain: true,
+      });
+
+      return res.status(200).json(newTask[1]);
     } catch (e) {
       return res.status(400).json({ message: 'Task not created' });
     }
