@@ -35,7 +35,7 @@ router.get(
 
       const filteredTasks = !filterBy
         ? countAndTasks.tasks
-        : countAndTasks.tasks.filter((task) => task.isDone === (filterBy === 'done'));
+        : countAndTasks.tasks.filter((task) => task.done === (filterBy === 'done'));
 
       return res.status(200).json({
         count: filteredTasks.length,
