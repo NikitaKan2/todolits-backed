@@ -7,7 +7,10 @@ const router = new Router();
 
 router.post(
   '/:userId',
-  body('name').isLength({ min: 3 }),
+  body('name')
+    .isLength({ min: 3 })
+    .isEmpty()
+    .withMessage('Message must be at least 3 character long "name" in body'),
   async (req, res) => {
     try {
       const dataTasks = await getFileData('./__fixtures__/dataForGet.json');
@@ -19,7 +22,7 @@ router.post(
 
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ message: 'Message must be at least 3 character long "name" in body:' });
+        return res.status(400).json({ message: errors.array() });
       }
 
       const normalizeTask = {
