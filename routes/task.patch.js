@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { body, query, validationResult } from 'express-validator';
+import { body, param, validationResult } from 'express-validator';
 import db from '../db.js';
 
 const router = new Router();
 
 router.patch(
   '/:userId/:id',
-  query('id').custom(async (value) => {
-    console.log(value)
+  param('id').custom(async (value) => {
+    console.log(value);
     const post = await db.query('SELECT * FROM posts where id = $1', [value]);
     if (!post.rows.length) {
       throw new Error('Invalid fields in request');
