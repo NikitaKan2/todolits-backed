@@ -1,15 +1,15 @@
 import { Router } from 'express';
 import { query, validationResult } from 'express-validator';
-import { getFileData } from '../utils/file-system.js';
+import { readJsonData } from '../utils/file-system.js';
 
 const router = new Router();
 
 router.get(
   '/:userId',
-  query('pp').isInt({ min: 5, max: 20 }),
+  query('pp').optional().isInt({ min: 5, max: 20 }),
   async (req, res) => {
+    const countAndTasks = await readJsonData();
     try {
-      const countAndTasks = await getFileData('./__fixtures__/dataForGet.json');
       const {
         filterBy, order, pp, page,
       } = req.query;
@@ -36,6 +36,13 @@ router.get(
       const filteredTasks = !filterBy
         ? countAndTasks.tasks
         : countAndTasks.tasks.filter((task) => task.done === (filterBy === 'done'));
+
+      if (!pp || !page) {
+        return res.status(200).json({
+          count: filteredTasks.length,
+          tasks: filteredTasks.slice(0, 5),
+        });
+      }
 
       return res.status(200).json({
         count: filteredTasks.length,
