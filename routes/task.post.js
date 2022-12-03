@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { body, validationResult } from 'express-validator';
-import { getFileData, writeFile } from '../utils/file-system.js';
+import { readJsonData, writeJson } from '../utils/file-system.js';
 
 const router = new Router();
 
@@ -10,10 +10,13 @@ router.post(
   body('name').isLength({ min: 3 }),
   async (req, res) => {
     try {
-      const dataTasks = await getFileData('./__fixtures__/dataForGet.json');
+      const dataFromFile = await readJsonData();
 
-      const sameName = dataTasks.tasks.filter((task) => task.name.trim() === req.body.name.trim());
-      if (sameName.length) {
+      const getTaskWithSameName = dataFromFile.tasks.filter((
+        task,
+      ) => task.name.trim() === req.body.name.trim());
+
+      if (getTaskWithSameName.length) {
         return res.status(401).json({ message: 'Task with the same name exist' });
       }
 
@@ -30,10 +33,10 @@ router.post(
         updatedAt: new Date().toISOString(),
       };
 
-      dataTasks.count = dataTasks.tasks.length;
-      dataTasks.tasks.push(normalizeTask);
+      dataFromFile.count = dataFromFile.tasks.length;
+      dataFromFile.tasks.push(normalizeTask);
 
-      await writeFile('./__fixtures__/dataForGet.json', dataTasks);
+      await writeJson(dataFromFile);
       return res.status(200).json(normalizeTask);
     } catch (e) {
       return res.status(422).json({ message: e.message });
