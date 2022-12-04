@@ -2,7 +2,6 @@ import { promises as fs } from 'fs';
 
 export const readJsonData = async () => {
   const data = await fs.readFile('./data/tasks.json');
-  console.log(data);
   return JSON.parse(data);
 };
 
