@@ -7,13 +7,6 @@ const router = new Router();
 router.get(
   '/tasks/:userId',
   query('pp').optional().isInt({ min: 5, max: 20 }),
-  query('order').optional().custom((value) => {
-    console.log(value);
-    if (value !== 'asc' && value !== 'desc') {
-      throw new Error('Order can be only "asc" or "desc"');
-    }
-    return true;
-  }),
   async (req, res) => {
     const {
       filterBy, order, pp, page,
@@ -27,15 +20,17 @@ router.get(
     const lastIndex = page * pp;
     const firstIndex = lastIndex - pp;
 
+    const sorting = order === '' ? 'desc' : order;
+
     const filtered = !filterBy
       ? await Task.findAll(
         {
-          order: [['createdAt', order]],
+          order: [['createdAt', sorting]],
         },
       )
       : await Task.findAll(
         {
-          order: [['createdAt', order]],
+          order: [['createdAt', sorting]],
           where:
         { done: filterBy === 'done' },
         },
