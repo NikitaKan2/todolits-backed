@@ -6,6 +6,8 @@ backed
 
 ## Run app:
 
+
+```
 1 Clone repository
 
 
@@ -16,6 +18,7 @@ backed
 
 
 4 Run `npm start`
+```
 
 
 # Basic Features:
