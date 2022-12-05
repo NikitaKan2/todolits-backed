@@ -7,9 +7,9 @@ router.delete(
   '/task/:userId/:id',
   async (req, res) => {
     try {
-      const taskToDelte = await Task.destroy({ where: { id: req.params.id }, returning: true });
+      const taskToDelete = await Task.destroy({ where: { id: req.params.id }, returning: true });
 
-      if (!taskToDelte) {
+      if (!taskToDelete) {
         return res.status(404).json({ message: 'Task not found' });
       }
 
