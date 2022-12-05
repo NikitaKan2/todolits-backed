@@ -6,11 +6,10 @@ import { readJsonData, writeJson } from '../utils/file-system.js';
 const router = new Router();
 
 router.post(
-  '/:userId',
+  '/task/:userId',
   body('name')
     .trim()
     .notEmpty()
-    .escape()
     .isLength({ min: 3 })
     .withMessage('Message must be at least 3 character long "name" in body')
     .custom(async (value) => {

@@ -3,7 +3,7 @@ import { readJsonData, writeJson } from '../utils/file-system.js';
 
 const router = new Router();
 
-router.delete('/:userId/:id', async (req, res) => {
+router.delete('/task/:userId/:id', async (req, res) => {
   try {
     const dataFromParse = await readJsonData();
     const taskToDelte = dataFromParse.tasks.filter((task) => task.uuid === req.params.id);

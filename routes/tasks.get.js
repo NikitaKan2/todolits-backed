@@ -5,8 +5,15 @@ import { readJsonData } from '../utils/file-system.js';
 const router = new Router();
 
 router.get(
-  '/:userId',
+  '/tasks/:userId',
   query('pp').optional().isInt({ min: 5, max: 20 }),
+  query('order').optional().custom((value) => {
+    console.log(value);
+    if (value !== 'asc' && value !== 'desc') {
+      throw new Error('Order can be only "asc" or "desc"');
+    }
+    return true;
+  }),
   async (req, res) => {
     const countAndTasks = await readJsonData();
     try {

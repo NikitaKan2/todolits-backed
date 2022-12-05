@@ -5,12 +5,11 @@ import { readJsonData, writeJson } from '../utils/file-system.js';
 const router = new Router();
 
 router.patch(
-  '/:userId/:id',
+  '/task/:userId/:id',
   body('name')
     .optional()
     .trim()
     .notEmpty()
-    .escape()
     .isLength({ min: 3 })
     .withMessage('Message must be at least 3 character long "name" in body')
     .custom(async (value) => {
