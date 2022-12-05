@@ -5,11 +5,16 @@ import Task from '../db/index.js';
 const router = new Router();
 
 router.get(
-  '/:userId',
+  '/tasks/:userId',
   query('pp').optional().isInt({ min: 5, max: 20 }),
+  query('order').optional().custom((value) => {
+    console.log(value);
+    if (value !== 'asc' && value !== 'desc') {
+      throw new Error('Order can be only "asc" or "desc"');
+    }
+    return true;
+  }),
   async (req, res) => {
-    const countAndTasks = await Task.findAll();
-    console.log(countAndTasks);
     const {
       filterBy, order, pp, page,
     } = req.query;
@@ -19,24 +24,18 @@ router.get(
       return res.status(400).json({ message: errors.array() });
     }
 
-    switch (order) {
-      case 'asc':
-        countAndTasks.sort((a, b) => a.createdAt - b.createdAt);
-        break;
-      case 'desc':
-        countAndTasks.sort((a, b) => b.createdAt - a.createdAt);
-        break;
-      default:
-        break;
-    }
-
     const lastIndex = page * pp;
     const firstIndex = lastIndex - pp;
 
     const filtered = !filterBy
-      ? countAndTasks
+      ? await Task.findAll(
+        {
+          order: [['createdAt', order]],
+        },
+      )
       : await Task.findAll(
         {
+          order: [['createdAt', order]],
           where:
         { done: filterBy === 'done' },
         },
@@ -50,7 +49,7 @@ router.get(
     }
 
     return res.json({
-      count: filtered.slice(firstIndex, lastIndex).length,
+      count: filtered.length,
       tasks: filtered.slice(firstIndex, lastIndex),
     });
   },

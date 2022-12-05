@@ -4,7 +4,7 @@ import Task from '../db/index.js';
 const router = new Router();
 
 router.delete(
-  '/:userId/:id',
+  '/task/:userId/:id',
   async (req, res) => {
     try {
       const taskToDelte = await Task.destroy({ where: { id: req.params.id }, returning: true });
