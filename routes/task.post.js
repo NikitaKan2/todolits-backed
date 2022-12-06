@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import Task from '../db/index.js';
+import Task from '../db/Task.js';
 
 const router = new Router();
 
@@ -9,7 +9,7 @@ router.post(
   async (req, res) => {
     try {
       const normalizeTask = await Task.create({
-        name: req.body.name.trim(),
+        name: req.body.name,
         id: uuidv4(),
       });
 

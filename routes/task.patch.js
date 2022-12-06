@@ -1,40 +1,34 @@
 import { Router } from 'express';
-import { param, validationResult } from 'express-validator';
-import Task from '../db/index.js';
+import { body } from 'express-validator';
+import Task from '../db/Task.js';
+import validate from '../utils/validate.js';
 
 const router = new Router();
 
 router.patch(
   '/task/:userId/:id',
-  param('id').custom(async (value) => {
-    const post = await Task.findAll({ where: { id: value } });
-    if (!post.length) {
-      throw new Error(`Task with id: ${value} not exist`);
-    }
-  }),
+  validate([
+    body(['name', 'done']).exists().withMessage('Nothing to Update'),
+  ]),
   async (req, res) => {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ message: errors.array() });
-      }
-
-      const taskToUpdate = await Task.findOne({ where: { id: req.params.id } });
-
       const newTask = await Task.update({
-        name: req.body.name ?? taskToUpdate.name,
-        done: req.body.done ?? taskToUpdate.done,
+        name: req.body.name,
+        done: req.body.done,
       }, {
         where: {
           id: req.params.id,
         },
         returning: true,
-        plain: true,
       });
+
+      if (!newTask[0]) {
+        return res.status(400).json({ error: `Task with id: ${req.params.id} not found` });
+      }
 
       return res.status(200).json(newTask[1]);
     } catch (e) {
-      return res.status(400).json({ e });
+      return res.status(400).json({ error: e.errors[0].message });
     }
   },
 );
