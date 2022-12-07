@@ -26,7 +26,7 @@ router.get(
 
     const filtered = await Task.findAndCountAll(
       {
-        order: [['createdAt', !order ? 'asc' : order]],
+        order: [['createdAt', !order ? 'desc' : order]],
         where:
         { done: filterBy ? (filterBy === 'done') : [true, false] },
         offset: (defaultValuesForPage - 1) * defaultValueForPp,
