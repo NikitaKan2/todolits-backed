@@ -21,7 +21,7 @@ recursiveReaddirSync('./routes')
 
 const startApp = () => {
   try {
-    app.listen(PORT, () => console.log(PORT));
+    app.listen(PORT);
   } catch (e) {
     console.log(e);
   }
