@@ -7,7 +7,7 @@ const PORT = 4003;
 const app = express();
 
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://backend-for-todo-app.onrender.com/'],
+  origin: ['http://localhost:3000', 'https://nikitakan2.github.io'],
 };
 
 app.use(cors(corsOptions));
