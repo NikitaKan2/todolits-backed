@@ -1,9 +1,9 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from './index.js';
 
-class Tasks extends Model {}
+class Task extends Model {}
 
-Tasks.init({
+Task.init({
   id: {
     type: DataTypes.STRING,
     unique: true,
@@ -44,4 +44,4 @@ Tasks.init({
   timestamps: true,
 });
 
-export default Tasks;
+export default Task;
