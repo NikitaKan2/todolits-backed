@@ -2,7 +2,7 @@ import express from 'express';
 import recursiveReaddirSync from 'recursive-readdir-sync';
 import cors from 'cors';
 
-const PORT = 4003;
+const PORT = 4004;
 
 const app = express();
 
@@ -21,7 +21,9 @@ recursiveReaddirSync('./routes')
 
 const startApp = () => {
   try {
-    app.listen(PORT);
+    app.listen(PORT, () => {
+      console.log(PORT);
+    });
   } catch (e) {
     console.log(e);
   }

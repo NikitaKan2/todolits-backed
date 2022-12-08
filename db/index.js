@@ -3,7 +3,16 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-const sequelize = new Sequelize(process.env.DB_URL, {
+let dbUrl;
+
+if (process.env.NODE_ENV === 'development') {
+  dbUrl = process.env.DB_URL;
+}
+if (process.env.NODE_ENV === 'production') {
+  dbUrl = process.env.REMOTE_DB_URL;
+}
+
+const sequelize = new Sequelize(dbUrl, {
   dialectOptions: {
     ssl: {
       require: true,
