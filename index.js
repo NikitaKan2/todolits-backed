@@ -2,7 +2,7 @@ import express from 'express';
 import recursiveReaddirSync from 'recursive-readdir-sync';
 import cors from 'cors';
 
-const PORT = 4005;
+const PORT = 4006;
 
 const app = express();
 

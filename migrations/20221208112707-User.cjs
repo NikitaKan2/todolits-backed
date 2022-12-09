@@ -24,6 +24,10 @@ module.exports = {
           notEmpty: true,
         },
       },
+      refreshToken: {
+        type: Sequelize.STRING,
+        unique: true,
+      },
 
     }, {
       modelName: 'users',

@@ -1,7 +1,11 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from './index.js';
 
-class Task extends Model {}
+class Task extends Model {
+  static associate({ User }) {
+    this.belongsTo(User);
+  }
+}
 
 Task.init({
   id: {
@@ -9,6 +13,10 @@ Task.init({
     unique: true,
     allowNull: false,
     primaryKey: true,
+  },
+  userId: {
+    type: DataTypes.UUID,
+    allowNull: false,
   },
   name: {
     type: DataTypes.STRING,

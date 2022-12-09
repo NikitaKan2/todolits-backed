@@ -1,8 +1,11 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from './index.js';
-import Task from './Task.js';
 
-class User extends Model {}
+class User extends Model {
+  static associate({ Task }) {
+    this.hasMany(Task, { foreignKey: 'userId' });
+  }
+}
 
 User.init({
   uuid: {
@@ -32,11 +35,6 @@ User.init({
   sequelize,
   modelName: 'users',
   timestamps: false,
-});
-
-Task.belongsTo(User);
-User.hasMany(Task, {
-  foreignKey: 'userId',
 });
 
 export default User;

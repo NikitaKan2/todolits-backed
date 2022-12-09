@@ -18,27 +18,31 @@ router.get(
     }),
   ]),
   async (req, res) => {
-    const {
-      filterBy, order, pp, page,
-    } = req.query;
+    try {
+      const {
+        filterBy, order, pp, page,
+      } = req.query;
 
-    const defaultValuesForPage = !page ? 1 : page;
-    const defaultValueForPp = !pp ? 5 : pp;
+      const defaultValuesForPage = !page ? 1 : page;
+      const defaultValueForPp = !pp ? 5 : pp;
 
-    const filtered = await Task.findAndCountAll(
-      {
-        order: [['createdAt', !order ? 'desc' : order]],
-        where:
+      const filtered = await Task.findAndCountAll(
+        {
+          order: [['createdAt', !order ? 'desc' : order]],
+          where:
         { done: filterBy ? (filterBy === 'done') : [true, false] },
-        offset: (defaultValuesForPage - 1) * defaultValueForPp,
-        limit: defaultValueForPp,
-      },
-    );
+          offset: (defaultValuesForPage - 1) * defaultValueForPp,
+          limit: defaultValueForPp,
+        },
+      );
 
-    return res.json({
-      count: filtered.count,
-      tasks: filtered.rows,
-    });
+      return res.json({
+        count: filtered.count,
+        tasks: filtered.rows,
+      });
+    } catch (e) {
+      return res.status(400).json({ error: e.errors[0].message });
+    }
   },
 );
 
