@@ -1,6 +1,7 @@
 import express from 'express';
 import recursiveReaddirSync from 'recursive-readdir-sync';
 import cors from 'cors';
+import authMiddleware from './middleware/auth-middleware.js';
 
 const PORT = 4006;
 
@@ -12,6 +13,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(authMiddleware);
 
 recursiveReaddirSync('./routes')
   .forEach(async (file) => {

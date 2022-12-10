@@ -6,7 +6,7 @@ const router = new Router();
 router.delete('/remove', (req, res) => {
   User.destroy({
     where: {
-      name: req.body.name,
+      uuid: req.user.uuid,
     },
   });
   return res.status(200).json('ok');

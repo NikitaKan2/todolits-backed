@@ -6,7 +6,7 @@ import validate from '../utils/validate.js';
 const router = new Router();
 
 router.patch(
-  '/task/:userId/:id',
+  '/task/:id',
   validate([
     body(['name', 'done']).exists().withMessage('Nothing to Update'),
   ]),

@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { query } from 'express-validator';
+import { Op } from 'sequelize';
 import validate from '../utils/validate.js';
 import Task from '../db/Task.js';
 
 const router = new Router();
 
 router.get(
-  '/tasks/:userId',
+  '/tasks/',
   validate([
     query('pp').optional().isInt({ min: 5, max: 20 }).withMessage('Query pp must be min 5 and max 20'),
     query('page').optional().isInt({ min: 1, max: 200 }).withMessage('Query page must be min 1 and max 200'),
@@ -29,8 +30,12 @@ router.get(
       const filtered = await Task.findAndCountAll(
         {
           order: [['createdAt', !order ? 'desc' : order]],
-          where:
-        { done: filterBy ? (filterBy === 'done') : [true, false] },
+          where: {
+            [Op.and]: [
+              { done: filterBy ? (filterBy === 'done') : [true, false] },
+              { userId: req.user.uuid },
+            ],
+          },
           offset: (defaultValuesForPage - 1) * defaultValueForPp,
           limit: defaultValueForPp,
         },

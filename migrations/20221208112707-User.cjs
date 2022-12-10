@@ -24,14 +24,15 @@ module.exports = {
           notEmpty: true,
         },
       },
-      refreshToken: {
-        type: Sequelize.STRING,
-        unique: true,
+      created_at: {
+        type: Sequelize.DATE,
       },
-
+      updated_at: {
+        type: Sequelize.DATE,
+      },
     }, {
       modelName: 'users',
-      timestamps: false,
+      timestamps: true,
     });
   },
 

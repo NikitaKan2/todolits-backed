@@ -9,12 +9,13 @@ router.post('/registration', async (req, res) => {
   if (checkUniq) {
     return res.status(400).json({ error: 'User must be uniq' });
   }
+
   const user = await User.create(
     { name: req.body.name, password: req.body.password },
   );
-  const accessToken = jwt.sign(user.toJSON(), 'nikita', { expiresIn: '3d' });
-  const refreshToken = jwt.sign(user.toJSON(), 'nikita-2', { expiresIn: '40d' });
-  return res.json({ accessToken, user, refreshToken });
+  console.log(user);
+  const accessToken = jwt.sign({ user: user.id }, 'nikita', { expiresIn: '3d' });
+  return res.json({ accessToken });
 });
 
 export default router;

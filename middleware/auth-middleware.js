@@ -1,8 +1,9 @@
+/* eslint-disable consistent-return */
 import jwt from 'jsonwebtoken';
 
 export default (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(' ')[1];
+  console.log(req);
+  const token = req.headers.authorization.replace('Bearer', '');
   if (!token) return res.status(404);
 
   jwt.verify(token, 'nikita', (err, user) => {
