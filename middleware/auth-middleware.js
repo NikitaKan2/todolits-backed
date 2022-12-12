@@ -14,6 +14,6 @@ export default async (req, res, next) => {
       next();
     }
   } catch (err) {
-    res.status(400).send('User not exist');
+    res.status(400).json({ error: 'User not exist' });
   }
 };

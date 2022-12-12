@@ -25,6 +25,7 @@ router.get(
       const {
         filterBy, order, pp, page,
       } = req.query;
+      console.log(req.user);
 
       const defaultValuesForPage = !page ? 1 : page;
       const defaultValueForPp = !pp ? 5 : pp;

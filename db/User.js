@@ -1,17 +1,12 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from './index.js';
 
-class User extends Model {
-  static associate({ Task }) {
-    this.hasMany(Task, { foreignKey: 'userId' });
-  }
-}
+class User extends Model {}
 
 User.init({
   uuid: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
-    autoIncrement: true,
     unique: true,
     allowNull: false,
     primaryKey: true,

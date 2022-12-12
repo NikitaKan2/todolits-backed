@@ -1,11 +1,7 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from './index.js';
 
-class Task extends Model {
-  static associate({ User }) {
-    this.belongsTo(User);
-  }
-}
+class Task extends Model {}
 
 Task.init({
   id: {
