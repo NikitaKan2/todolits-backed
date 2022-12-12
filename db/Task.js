@@ -5,7 +5,8 @@ class Tasks extends Model {}
 
 Tasks.init({
   id: {
-    type: DataTypes.STRING,
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     unique: true,
     allowNull: false,
     primaryKey: true,

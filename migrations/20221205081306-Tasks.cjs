@@ -3,7 +3,8 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('tasks', {
       id: {
-        type: Sequelize.STRING,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
         unique: true,
         allowNull: false,
         primaryKey: true,
