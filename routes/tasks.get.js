@@ -3,6 +3,7 @@ import { query } from 'express-validator';
 import { Op } from 'sequelize';
 import validate from '../utils/validate.js';
 import Task from '../db/Task.js';
+import authMiddleware from '../middleware/auth-middleware.js';
 
 const router = new Router();
 
@@ -18,6 +19,7 @@ router.get(
       return true;
     }),
   ]),
+  authMiddleware,
   async (req, res) => {
     try {
       const {
@@ -40,6 +42,7 @@ router.get(
           limit: defaultValueForPp,
         },
       );
+      console.log(filtered);
 
       return res.json({
         count: filtered.count,

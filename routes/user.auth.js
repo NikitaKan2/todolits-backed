@@ -1,18 +1,24 @@
 import { Router } from 'express';
-import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import generateAccessToken from '../utils/jwt-service.js';
 import User from '../db/User.js';
 
 const router = new Router();
 
-router.post('/login', (req, res) => {
-  const user = User.findOne({
+router.post('/login', async (req, res) => {
+  console.log(req.body);
+  const user = await User.findOne({
     where: {
-      uuid: req.user.uuid,
+      name: req.body.name,
     },
   });
-  if (!user) return res.status(401).json({ error: 'User not created' });
 
-  const accessToken = jwt.sign({ user: user.id }, 'nikita', { expiresIn: '3d' });
+  const comparePasswords = await bcrypt.compare(req.body.password, user.password);
+  if (!comparePasswords) {
+    return res.send('error');
+  }
+
+  const accessToken = generateAccessToken({ user: user.uuid });
   return res.status(200).json({ accessToken });
 });
 

@@ -1,14 +1,19 @@
 /* eslint-disable consistent-return */
 import jwt from 'jsonwebtoken';
+import User from '../db/User.js';
 
-export default (req, res, next) => {
-  console.log(req);
-  const token = req.headers.authorization.replace('Bearer', '');
-  if (!token) return res.status(404);
+export default async (req, res, next) => {
+  try {
+    const token = req.headers.authorization.replace('Bearer ', '');
+    if (token) {
+      const { user } = jwt.verify(token, 'nikita');
+      const findUser = await User.findByPk(user);
 
-  jwt.verify(token, 'nikita', (err, user) => {
-    if (err) return res.status(404);
-    req.user = user;
-    next();
-  });
+      req.user = findUser;
+
+      next();
+    }
+  } catch (err) {
+    res.status(400).send('User not exist');
+  }
 };
