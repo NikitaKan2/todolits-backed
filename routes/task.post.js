@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { v4 as uuidv4 } from 'uuid';
 import Task from '../db/Task.js';
 import authMiddleware from '../middleware/auth-middleware.js';
 
@@ -12,7 +11,6 @@ router.post(
     try {
       const normalizeTask = await Task.create({
         name: req.body.name,
-        id: uuidv4(),
         userId: req.user.uuid,
       });
       return res.status(200).json(normalizeTask);
