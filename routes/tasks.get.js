@@ -25,7 +25,6 @@ router.get(
       const {
         filterBy, order, pp, page,
       } = req.query;
-      console.log(req.user);
 
       const defaultValuesForPage = !page ? 1 : page;
       const defaultValueForPp = !pp ? 5 : pp;
@@ -43,7 +42,6 @@ router.get(
           limit: defaultValueForPp,
         },
       );
-      console.log(filtered);
 
       return res.json({
         count: filtered.count,

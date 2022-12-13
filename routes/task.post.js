@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { Op } from 'sequelize';
 import Task from '../db/Task.js';
 import authMiddleware from '../middleware/auth-middleware.js';
 
@@ -9,6 +10,19 @@ router.post(
   authMiddleware,
   async (req, res) => {
     try {
+      const checkUnique = await Task.findAll({
+        where: {
+          [Op.and]: [
+            { name: req.body.name },
+            { userId: req.user.uuid },
+          ],
+        },
+      });
+
+      if (checkUnique.length) {
+        return res.status(400).json({ error: 'Task with same name exist' });
+      }
+
       const normalizeTask = await Task.create({
         name: req.body.name,
         userId: req.user.uuid,
