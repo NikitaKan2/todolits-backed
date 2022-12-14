@@ -13,7 +13,6 @@ export default async (req, res, next) => {
       const findUser = await User.findByPk(user);
 
       req.user = findUser;
-      // res.locals.user
       next();
     }
   } catch (err) {

@@ -23,11 +23,12 @@ router.post(
         return res.status(400).json({ error: 'Task with same name exist' });
       }
 
-      const normalizeTask = await Task.create({
+      const newTask = await Task.create({
         name: req.body.name,
         userId: req.user.uuid,
       });
-      return res.status(200).json(normalizeTask);
+
+      return res.status(200).json(newTask);
     } catch (e) {
       if (e.errors[0].message === 'name must be unique') {
         e.errors[0].message = 'Task with same name exist';

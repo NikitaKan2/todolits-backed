@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import bcrypt from 'bcrypt';
 import { body } from 'express-validator';
 import generateAccessToken from '../utils/jwt-service.js';
 import User from '../db/User.js';
@@ -11,10 +10,8 @@ router.post('/registration', validate([
   body('password').notEmpty().withMessage('Password required'),
 ]), async (req, res) => {
   try {
-    const hashPassword = await bcrypt.hash(req.body.password, 6);
-
     const user = await User.create(
-      { name: req.body.name, password: hashPassword },
+      { name: req.body.name, password: req.body.password },
     );
 
     const accessToken = generateAccessToken({ user: user.uuid });

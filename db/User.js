@@ -1,4 +1,5 @@
 import { Model, DataTypes } from 'sequelize';
+import bcrypt from 'bcrypt';
 import sequelize from './index.js';
 
 class User extends Model {}
@@ -24,6 +25,9 @@ User.init({
     allowNull: false,
     validate: {
       notEmpty: true,
+    },
+    set(value) {
+      this.setDataValue('password', bcrypt.hashSync(value, 6));
     },
   },
 }, {
