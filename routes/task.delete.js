@@ -13,7 +13,7 @@ router.delete(
       const taskToDelete = await Task.destroy({
         where: {
           [Op.and]: [
-            { name: req.body.name },
+            { id: req.params.id },
             { userId: req.user.uuid },
           ],
         },
